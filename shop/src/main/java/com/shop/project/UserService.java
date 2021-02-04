@@ -1,5 +1,8 @@
 package com.shop.project;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,5 +57,20 @@ public class UserService {
 	
 	public User getUserBySession() {
 		return userRepository.findById(userSession.getUserId()).get();
+	}
+	
+	public void payForOrder(double cost) {
+		User user = userRepository.findById(userSession.getUserId()).get();
+		user.setMoney(user.getMoney()-cost);
+		userRepository.save(user);
+	}
+	
+	public Map<Long,User> getUserMap(){
+		Map<Long,User> userMap = new HashMap<Long,User>();
+		
+		userRepository.findAll().forEach(user->{
+			userMap.put(user.getId(), user);
+		});
+		return userMap;
 	}
 }

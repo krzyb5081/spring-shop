@@ -62,6 +62,7 @@ public class ShoppingCartController {
 	
 	@PostMapping("/makeOrder")
 	public String makeOrder() {
-		return "index";
+		orderService.makeOrder();
+		return "redirect:/showOrders";
 	}
 }

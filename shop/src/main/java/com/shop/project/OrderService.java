@@ -1,6 +1,9 @@
 package com.shop.project;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,15 +12,15 @@ import org.springframework.stereotype.Service;
 public class OrderService {
 	
 	@Autowired
-	ProductRepository productRepository;
+	private OrderRepository orderRepository;
 	@Autowired
-	OrderRepository orderRepo;
+	private OrderProductRepository orderProductRepository;
 	@Autowired
-	OrderProductRepository orderProductRepo;
+	private ProductService productService;
 	@Autowired
-	ShoppingCartService shoppingCartService;
+	private ShoppingCartService shoppingCartService;
 	@Autowired
-	UserService userService;
+	private UserService userService;
 	
 	public void makeOrder() {
 		
@@ -25,16 +28,32 @@ public class OrderService {
 		
 		Order order = new Order();
 		order.setUserId(userService.getSessionUserId());
-		order.setStatus("Waiting to pay");
+		order.setStatus("paid");
 		
-		Order savedOrder = orderRepo.save(order);
-		orderProduct.forEach(ordPro -> ordPro.setOrderId(savedOrder.getId()));
+		double cost = getOrderCost();
+		userService.payForOrder(cost);
 		
-		try {
-			orderProductRepo.saveAll(orderProduct);
-		} catch(IllegalArgumentException e) {
-			System.out.println("Some orderProduct is null");
-		}
+		Order savedOrder = orderRepository.save(order);
+		orderProduct.forEach(ordProduct -> ordProduct.setOrderId(savedOrder.getId()));
+		orderProduct.forEach(ordProduct -> {
+			long productId = ordProduct.getProductId();
+			productService.decreaseProductQuantity(productId, ordProduct.getQuantity());
+		});
+		orderProductRepository.saveAll(orderProduct);
+		
+	}
+	
+	public Map<Order,List<OrderProduct>> getMyOrders() {
+		
+		Map<Order,List<OrderProduct>> orderMap = new HashMap<Order,List<OrderProduct>>();
+		
+		List<Order> orderList = orderRepository.findByUserId(userService.getSessionUserId());
+		orderList.forEach(order -> {
+			List<OrderProduct> orderProductList = orderProductRepository.findByOrderId(order.getId());
+			orderMap.put(order, orderProductList);
+		});
+		
+		return Collections.unmodifiableMap(orderMap);
 	}
 	
 	public boolean checkout() {
@@ -45,7 +64,7 @@ public class OrderService {
 			long productId = productsFromCart.getProductId();
 			int quantity = productsFromCart.getQuantity();
 			
-			int quantityAvailable = productRepository.findById(productId).get().getQuantityAvailable();
+			int quantityAvailable = productService.getProductById(productId).getQuantityAvailable();
 			
 			if(quantityAvailable < quantity) {
 				return false;
@@ -61,13 +80,23 @@ public class OrderService {
 		List<OrderProduct> shoppingCartProducts = shoppingCartService.getOrderProductList();
 		
 		for(OrderProduct productsFromCart: shoppingCartProducts) {
-			double price = productRepository.findById(productsFromCart.getProductId()).get().getPrice();
+			double price = productService.getProductById(productsFromCart.getProductId()).getPrice();
 			int quantity = productsFromCart.getQuantity();
 			
 			cost += price*quantity;
 		}
 		return cost;
 		
+	}
+	
+	public Map<Long,Product> getProductMap() {
+		
+		return productService.getProductMap();
+	}
+	
+	public Map<Long,User> getUserMap() {
+		
+		return userService.getUserMap();
 	}
 	
 }

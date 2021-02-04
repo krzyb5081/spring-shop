@@ -5,7 +5,11 @@
 <title>Confirm order and pay</title>
 </head>
 <body>
-	<h2>Your money available: <span th:text="*{money}"></span></h2><br/>
+	<h2>Your money available: <span th:text="*{money}"></span></h2>
 	<h2>Your have to pay: <span th:text="*{cost}"></span></h2>
+	
+	<form action="#" th:action="@{/makeOrder}" method="post">
+		<input type="submit" value="Pay and make order" />
+	</form>
 </body>
 </html>

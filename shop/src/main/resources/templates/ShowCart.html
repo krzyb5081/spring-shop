@@ -17,7 +17,7 @@
 			<th>Description</th>
 			<th>Price</th>
 			<th>Available</th>
-			<th>Buy</th>
+			<th>Quantity</th>
 		</tr>
 		
 		<tr th:each="orderProduct : ${orderProductList}" th:with="product=${productMap.get(orderProduct.productId)}">
@@ -28,17 +28,18 @@
 			
 			<td>
 				<form action="#" th:action="@{/addProductToCart}" method="post">
-					<input type="hidden" name="productId" th:text="${product.id}" />
-					<input type="number" th:text="${orderProduct.quantity}" name="quantity" />
+					<input type="hidden" name="productId" th:value="${product.id}" />
+					<input type="number" th:value="${orderProduct.quantity}" name="quantity" />
 					<input type="submit" value="Add to cart" />
 				</form>
-				<form action="#" th:action="@{/removeProductFromToCart}" method="post">
-					<input type="hidden" name="productId" th:text="${product.id}" />
+				<form action="#" th:action="@{/removeProductFromCart}" method="post">
+					<input type="hidden" name="productId" th:value="${product.id}" />
 					<input type="submit" value="Remove from cart" />
 				</form>
 			</td>
 		</tr>
 	</table>
+	<a href="/makeOrder"><button>Make order</button></a>
 	
 </body>
 </html>

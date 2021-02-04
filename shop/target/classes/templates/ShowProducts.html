@@ -27,8 +27,8 @@
 			<td> <span th:text="${product.quantityAvailable}"></span> </td>
 			
 			<td>
-				<form action="#" th:action="@{/addProductToCart}" method="get">
-					<input type="hidden" name="productId" th:text="${product.id}" />
+				<form action="#" th:action="@{/addProductToCart}" method="post">
+					<input type="hidden" name="productId" th:value="${product.id}" />
 					<input type="number" value="0" name="quantity" />
 					<input type="submit" value="Add to cart" />
 				</form>
