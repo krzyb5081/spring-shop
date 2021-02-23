@@ -11,6 +11,12 @@
 </head>
 <body>
 
+	<H2>Search for products</H2>
+	<form action="#" th:action="@{/shopping}" method="post">
+		<input type="text" name="searchText" placeholder="product name" />
+		<input type="submit" value="Search" />
+	</form>
+
 	<table>
 		<tr>
 			<th>Product name</th>
